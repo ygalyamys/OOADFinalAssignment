@@ -4,12 +4,10 @@ import enums.SpotCategory;
 
 public abstract class Vehicle {
     protected String plateNumber;
-    protected SpotCategory category;
     protected boolean handicapped;
 
-    public Vehicle(String plateNumber, SpotCategory category, boolean handicapped) {
+    public Vehicle(String plateNumber, boolean handicapped) {
         this.plateNumber = plateNumber;
-        this.category = category;
         this.handicapped = handicapped;
     }
 
@@ -17,11 +15,11 @@ public abstract class Vehicle {
         return plateNumber;
     }
 
-    public SpotCategory getCategory() {
-        return category;
-    }
-
     public boolean isHandicappedCardHolder() {
         return handicapped;
     }
+
+    public abstract SpotCategory getRequiredSpotType();
+
+    public abstract String getVehicleType();
 }
