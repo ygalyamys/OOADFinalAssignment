@@ -5,9 +5,10 @@ import enums.SpotCategory;
 public class SUV extends Vehicle {
 
     public SUV(String plateNumber) {
-        super(plateNumber, SpotCategory.LARGE, false);
+        super(plateNumber, SpotCategory.REGULAR, false);
     }
 }
  {
     
 }
+
