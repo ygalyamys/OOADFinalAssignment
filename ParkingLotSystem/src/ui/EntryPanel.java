@@ -1,10 +1,9 @@
 package ui;
 
 import entity.*;
-import service.SpotAllocator;
-
-import javax.swing.*;
 import java.awt.*;
+import javax.swing.*;
+import service.SpotAllocator;
 
 public class EntryPanel extends JPanel {
 
@@ -47,7 +46,7 @@ public class EntryPanel extends JPanel {
         String plate = txtPlate.getText();
         String type = (String) cmbType.getSelectedItem();
 
-        if (plate.isEmpty()) {
+        if (plate.trim().isEmpty()) {
             txtResult.setText("Please enter plate number.");
             return;
         }
@@ -72,10 +71,10 @@ public class EntryPanel extends JPanel {
                 return;
         }
 
-        var spot = allocator.allocateSpot(vehicle);
+        Ticket ticket = allocator.allocateSpot(vehicle);
 
-        if (spot != null) {
-            txtResult.setText("Allocated Spot ID: " + spot.getId());
+        if (ticket != null) {
+            txtResult.setText("Ticket ID: " + ticket.getTicketID() + "\n" + "Plate: " + ticket.getPlateNumber() + "\n" + "Spot: " + ticket.getSpotID() + " Spot Type:"  + ticket.getSpotCategory() + "\n" + "Entry Time: " + ticket.getFormattedEntryTime());
         } else {
             txtResult.setText("No available spot.");
         }
