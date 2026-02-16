@@ -25,31 +25,33 @@ public class ExitController {
     private final PaymentService paymentService;
     private final ParkingSpotLookup spotLookup;
 
+    /*
     // ===== Temporary demo storage =====
     // For demo ONLY, can replace this with ParkingSessionRepository + VehicleRepository later.
     private final Map<String, ParkingSession> activeSessionsByPlate = new HashMap<>();
     private final Map<String, Vehicle> vehiclesByPlate = new HashMap<>();
+    */
 
     public ExitController(BillingService billingService,
                           FineService fineService,
                           PaymentService paymentService,
-                          //ParkingSessionRepository sessionRepo,
-                          //VehicleRepository vehicleRepo,
+                          ParkingSessionRepository sessionRepo,
+                          VehicleRepository vehicleRepo,
                           ParkingSpotLookup spotLookup) {
         this.billingService = billingService;
         this.fineService = fineService;
         this.paymentService = paymentService;
         this.spotLookup = spotLookup;
-        //this.sessionRepo = sessionRepo;
-        //this.vehicleRepo = vehicleRepo;
+        this.sessionRepo = sessionRepo;
+        this.vehicleRepo = vehicleRepo;
     }
 
-    /*
+    
     private final ParkingSessionRepository sessionRepo;
     private final VehicleRepository vehicleRepo;
-    */
     
-    // ===== Demo helper =====
+    
+    /* ===== Demo helper =====
     // Seeds a fake session so ExitPanel can run without needing EntryPanel integration yet.
     public void seedDemoSession(String plateNo, boolean handicappedCardHolder, String spotId) {
         vehiclesByPlate.put(plateNo, new Vehicle(plateNo, handicappedCardHolder));
@@ -58,6 +60,7 @@ public class ExitController {
                 new ParkingSession("S-" + plateNo, plateNo, spotId, LocalDateTime.now().minusHours(2))
         );
     }
+    */
 
     /*
     Main EXIT use-case:
@@ -72,14 +75,14 @@ public class ExitController {
     public Receipt exitLot(String plateNo, String methodName, double amountPaid) {
 
         // --- 1) Retrieve current session ---
-        ParkingSession session = activeSessionsByPlate.get(plateNo);
-        //ParkingSession session = sessionRepo.findActiveByPlate(plateNo);
+        //ParkingSession session = activeSessionsByPlate.get(plateNo);
+        ParkingSession session = sessionRepo.findActiveByPlate(plateNo);
         if (session == null) {
             throw new IllegalArgumentException("No active session found for plate: " + plateNo);
         }
 
-        Vehicle vehicle = vehiclesByPlate.get(plateNo);
-        //Vehicle vehicle = vehicleRepo.findByPlate(plateNo);
+        //Vehicle vehicle = vehiclesByPlate.get(plateNo);
+        Vehicle vehicle = vehicleRepo.findByPlate(plateNo);
         if (vehicle == null) {
             throw new IllegalStateException("Vehicle not found for plate: " + plateNo);
         }
@@ -142,14 +145,14 @@ public class ExitController {
     public Receipt previewBill(String plateNo) {
 
         // --- 1) Retrieve current session ---
-        ParkingSession session = activeSessionsByPlate.get(plateNo);
-        //ParkingSession session = sessionRepo.findActiveByPlate(plateNo);
+        //ParkingSession session = activeSessionsByPlate.get(plateNo);
+        ParkingSession session = sessionRepo.findActiveByPlate(plateNo);
         if (session == null) {
             throw new IllegalArgumentException("No active session found for plate: " + plateNo);
         }
 
-        Vehicle vehicle = vehiclesByPlate.get(plateNo);
-        //Vehicle vehicle = vehicleRepo.findByPlate(plateNo);
+        //Vehicle vehicle = vehiclesByPlate.get(plateNo);
+        Vehicle vehicle = vehicleRepo.findByPlate(plateNo);
         if (vehicle == null) {
             throw new IllegalStateException("Vehicle not found for plate: " + plateNo);
         }
@@ -185,7 +188,7 @@ public class ExitController {
         );
     }
 
-    // Optional: expose outstanding for UI demo/debug
+    // expose outstanding for UI demo/debug
     public double getOutstandingFines(String plateNo) {
         return fineService.getOutstanding(plateNo);
     }
