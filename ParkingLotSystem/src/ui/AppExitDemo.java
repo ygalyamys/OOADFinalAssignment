@@ -42,7 +42,7 @@ public class AppExitDemo {
 
         // ===== 5) Launch GUI =====
         javax.swing.SwingUtilities.invokeLater(() -> {
-            javax.swing.JFrame f = new javax.swing.JFrame("Parking Exit Panel (Member 3)");
+            javax.swing.JFrame f = new javax.swing.JFrame("Parking Exit Panel Demo");
             f.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
             f.setContentPane(new ExitPanel(exitController));
             f.pack();
