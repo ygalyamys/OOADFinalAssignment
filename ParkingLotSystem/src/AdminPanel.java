@@ -14,7 +14,10 @@ public class AdminPanel extends JPanel {
 
     private final AdminController controller;
 
-    private JLabel occupancyLabel;
+    private JLabel totalSpotsLabel;
+    private JLabel occupiedSpotsLabel;
+    private JLabel availableSpotsLabel;
+    private JLabel occupancyRateLabel;
     private JLabel revenueLabel;
 
     private JTable vehicleTable;
@@ -31,97 +34,73 @@ public class AdminPanel extends JPanel {
     private void initUI() {
         setLayout(new BorderLayout());
 
-        JPanel dashboardPanel = new JPanel(new GridLayout(1, 2));
+        JPanel dashboard = new JPanel(new GridLayout(2, 3));
+        dashboard.setBorder(BorderFactory.createTitledBorder("Admin Dashboard"));
 
-        occupancyLabel = new JLabel("Occupancy: 0%");
-        revenueLabel = new JLabel("Total Revenue: RM 0.00");
+        totalSpotsLabel = new JLabel();
+        occupiedSpotsLabel = new JLabel();
+        availableSpotsLabel = new JLabel();
+        occupancyRateLabel = new JLabel();
+        revenueLabel = new JLabel();
 
-        dashboardPanel.add(occupancyLabel);
-        dashboardPanel.add(revenueLabel);
+        dashboard.add(totalSpotsLabel);
+        dashboard.add(occupiedSpotsLabel);
+        dashboard.add(availableSpotsLabel);
+        dashboard.add(occupancyRateLabel);
+        dashboard.add(revenueLabel);
 
-        add(dashboardPanel, BorderLayout.NORTH);
+        add(dashboard, BorderLayout.NORTH);
 
-        JTabbedPane tabbedPane = new JTabbedPane();
+        JTabbedPane tabs = new JTabbedPane();
 
         vehicleTable = new JTable();
         fineTable = new JTable();
 
-        tabbedPane.add("Current Vehicles", new JScrollPane(vehicleTable));
-        tabbedPane.add("Outstanding Fines", new JScrollPane(fineTable));
+        tabs.add("Vehicle Report", new JScrollPane(vehicleTable));
+        tabs.add("Fine Report", new JScrollPane(fineTable));
 
-        add(tabbedPane, BorderLayout.CENTER);
+        add(tabs, BorderLayout.CENTER);
 
-        JPanel bottomPanel = new JPanel();
+        JPanel bottom = new JPanel();
 
         fineSchemeComboBox = new JComboBox<>();
-        JButton applySchemeButton = new JButton("Apply Fine Scheme");
-        JButton refreshButton = new JButton("Refresh");
+        JButton applyBtn = new JButton("Apply Scheme");
+        JButton refreshBtn = new JButton("Refresh");
 
-        applySchemeButton.addActionListener(e -> applyFineScheme());
-        refreshButton.addActionListener(e -> refreshData());
+        applyBtn.addActionListener(e -> controller.setFineScheme(
+                (FineScheme) fineSchemeComboBox.getSelectedItem()));
 
-        bottomPanel.add(new JLabel("Fine Scheme:"));
-        bottomPanel.add(fineSchemeComboBox);
-        bottomPanel.add(applySchemeButton);
-        bottomPanel.add(refreshButton);
+        refreshBtn.addActionListener(e -> refreshData());
 
-        add(bottomPanel, BorderLayout.SOUTH);
+        bottom.add(fineSchemeComboBox);
+        bottom.add(applyBtn);
+        bottom.add(refreshBtn);
+
+        add(bottom, BorderLayout.SOUTH);
     }
 
-    public void refreshData() {
-
-        double occupancy = controller.getOccupancyRate();
-        occupancyLabel.setText("Occupancy: " + String.format("%.2f", occupancy) + "%");
-
-        double revenue = controller.getTotalRevenue();
-        revenueLabel.setText("Total Revenue: RM " + String.format("%.2f", revenue));
+    private void refreshData() {
+        totalSpotsLabel.setText("Total: " + controller.getTotalSpots());
+        occupiedSpotsLabel.setText("Occupied: " + controller.getOccupiedSpots());
+        availableSpotsLabel.setText("Available: " + controller.getAvailableSpots());
+        occupancyRateLabel.setText("Occupancy: " + String.format("%.2f", controller.getOccupancyRate()) + "%");
+        revenueLabel.setText("Revenue: RM " + String.format("%.2f", controller.getTotalRevenue()));
 
         populateVehicleTable(controller.getCurrentVehicles());
         populateFineTable(controller.getOutstandingFines());
     }
 
     private void populateVehicleTable(List<ParkingSession> sessions) {
-
-        String[] columns = {"Plate", "Entry Time", "Spot"};
-        DefaultTableModel model = new DefaultTableModel(columns, 0);
-
-        for (ParkingSession session : sessions) {
-            model.addRow(new Object[]{
-                    session.getLicensePlate(),
-                    String.valueOf(session.getEntryTime()),
-                    session.getSpotId()
-            });
-        }
-
+        DefaultTableModel model = new DefaultTableModel(new String[]{"Plate","Entry","Spot"},0);
+        for (ParkingSession s : sessions)
+            model.addRow(new Object[]{s.getLicensePlate(), s.getEntryTime(), s.getSpotId()});
         vehicleTable.setModel(model);
     }
 
     private void populateFineTable(Map<String, Double> fines) {
-
-        String[] columns = {"License Plate", "Outstanding Amount"};
-        DefaultTableModel model = new DefaultTableModel(columns, 0);
-
-        for (Map.Entry<String, Double> entry : fines.entrySet()) {
-            model.addRow(new Object[]{
-                    entry.getKey(),
-                    "RM " + String.format("%.2f", entry.getValue())
-            });
-        }
-
+        DefaultTableModel model = new DefaultTableModel(new String[]{"Plate","Fine"},0);
+        for (String plate : fines.keySet())
+            model.addRow(new Object[]{plate, fines.get(plate)});
         fineTable.setModel(model);
-    }
-
-    private void applyFineScheme() {
-        FineScheme selectedScheme = (FineScheme) fineSchemeComboBox.getSelectedItem();
-        controller.setFineScheme(selectedScheme);
-        JOptionPane.showMessageDialog(this, "Fine scheme updated successfully.");
-    }
-
-    public void setFineSchemes(List<FineScheme> schemes) {
-        DefaultComboBoxModel<FineScheme> model = new DefaultComboBoxModel<>();
-        for (FineScheme scheme : schemes) {
-            model.addElement(scheme);
-        }
-        fineSchemeComboBox.setModel(model);
     }
 }
