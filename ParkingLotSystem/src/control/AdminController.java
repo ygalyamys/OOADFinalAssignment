@@ -1,61 +1,62 @@
 package control;
 
-import entity.ParkingLot;
 import entity.ParkingSession;
-import service.BillingService;
+import observer.OccupancyObserver;
+import observer.RevenueObserver;
 import service.FineService;
 import service.FineScheme;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class AdminController {
 
-    private final ParkingLot parkingLot;
-    private final BillingService billingService;
+    private final OccupancyObserver occupancyObserver;
+    private final RevenueObserver revenueObserver;
     private final FineService fineService;
 
-    public AdminController(ParkingLot parkingLot,
-                           BillingService billingService,
+    public AdminController(OccupancyObserver occupancyObserver,
+                           RevenueObserver revenueObserver,
                            FineService fineService) {
+        this.occupancyObserver = occupancyObserver;
+        this.revenueObserver = revenueObserver;
+        this.fineService = fineService;
+    }
 
-        this.parkingLot = Objects.requireNonNull(parkingLot);
-        this.billingService = Objects.requireNonNull(billingService);
-        this.fineService = Objects.requireNonNull(fineService);
+    // Parking statistics
+    public int getTotalSpots() {
+        return occupancyObserver.getTotalSpots();
+    }
+
+    public int getOccupiedSpots() {
+        return occupancyObserver.getOccupiedSpots();
+    }
+
+    public int getAvailableSpots() {
+        return occupancyObserver.getAvailableSpots();
     }
 
     public double getOccupancyRate() {
-        int totalSpots = parkingLot.getTotalSpots();
-        int occupiedSpots = parkingLot.getOccupiedSpots();
-
-        if (totalSpots <= 0) {
-            return 0.0;
-        }
-
-        return (occupiedSpots * 100.0) / totalSpots;
+        return occupancyObserver.getOccupancyRate();
     }
 
+    // Revenue tracking
     public double getTotalRevenue() {
-        double parkingRevenue = billingService.getTotalRevenue();
-        double fineRevenue = fineService.getTotalCollectedFines();
-        return parkingRevenue + fineRevenue;
+        return revenueObserver.getTotalRevenue();
     }
 
+    // Reporting data
     public Map<String, Double> getOutstandingFines() {
         Map<String, Double> fines = fineService.getOutstandingFines();
         return fines != null ? fines : Collections.emptyMap();
     }
 
     public List<ParkingSession> getCurrentVehicles() {
-        List<ParkingSession> sessions = parkingLot.getActiveSessions();
-        return sessions != null ? sessions : Collections.emptyList();
+        return fineService.getActiveSessions();
     }
 
     public void setFineScheme(FineScheme scheme) {
-        if (scheme != null) {
-            fineService.setFineScheme(scheme);
-        }
+        fineService.setFineScheme(scheme);
     }
 }
