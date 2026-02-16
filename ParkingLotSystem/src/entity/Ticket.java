@@ -1,8 +1,8 @@
 package entity;
 
+import enums.SpotCategory;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import enums.SpotCategory;
 
 public class Ticket {
     private String ticketID;
@@ -20,6 +20,15 @@ public class Ticket {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
         this.ticketID = "T-" + plateNumber + "-" + entryTime.format(formatter);
     }
+
+    public Ticket(String ticketID, String plateNumber, String spotID, SpotCategory spotCategory, LocalDateTime entryTime) {
+        this.ticketID = ticketID;
+        this.plateNumber = plateNumber;
+        this.spotID = spotID;
+        this.spotCategory = spotCategory;
+        this.entryTime = entryTime;
+    }
+
 
     public String getTicketID() {
         return ticketID;
