@@ -86,6 +86,8 @@ public class SpotAllocator {
 
     Ticket ticket = new Ticket(vehicle.getPlateNumber(),spot.getSpotID(),spot.getCategory());
 
+    TicketFileService.saveTicket(ticket);
+
     System.out.println("Allocated " + spot.getSpotID() + " (" + spot.getCategory() + ")" + " to " + vehicle.getPlateNumber());
 
     System.out.println("Ticket Generated: " + ticket.getTicketID());
